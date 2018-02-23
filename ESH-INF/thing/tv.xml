@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="sonybravia" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<!-- Sample Thing Type -->
+	<thing-type id="tv">
+		<label>Sony Bravia TV</label>
+		<description>Allows to control Sony Bravia TV</description>
+
+		<channels>
+			<channel id="power" typeId="power" />
+		</channels>
+
+		<config-description>
+			<parameter name="ipAddress" type="text" required="true">
+				<label>IP address</label>
+				<description>The IP address of the TV.</description>
+			</parameter>
+			<parameter name="preSharedKey" type="text" required="true">
+				<label>Pre Shared Key</label>
+				<description>Pre shared key from TV configuration.</description>
+			</parameter>
+			<parameter name="pullInterval" type="integer" required="false"  >
+				<label>Pull interval</label>
+				<description>Interval in ms to pull TV for status.</description>
+				<default>8000</default>
+			</parameter>
+
+		</config-description>
+
+	</thing-type>
+
+	<!-- Sample Channel Type -->
+	<channel-type id="power">
+		<item-type>Switch</item-type>
+		<label>Power</label>
+		<description>TV power.</description>
+	</channel-type>
+
+</thing:thing-descriptions>
