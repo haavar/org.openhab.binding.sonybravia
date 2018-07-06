@@ -12,16 +12,12 @@
  */
 package org.openhab.binding.sonybravia.handler;
 
-import static org.openhab.binding.sonybravia.SonyBraviaBindingConstants.*;
-
-
 import com.google.gson.Gson;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringContentProvider;
-
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -32,6 +28,7 @@ import org.openhab.binding.sonybravia.internal.SonyBraviaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.ConnectException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -39,6 +36,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import static org.openhab.binding.sonybravia.SonyBraviaBindingConstants.CHANNEL_POWER;
 
 /**
  * The {@link SonyBraviaHandler} is responsible for handling commands, which are
@@ -102,12 +101,20 @@ public class SonyBraviaHandler extends BaseThingHandler {
         }
 
         Runnable runnable = () -> {
-            Boolean powerStatus = getPowerStatus();
-            if (powerStatus != previousPowerState) {
-                previousPowerState = powerStatus;
-                OnOffType state = powerStatus ? OnOffType.ON : OnOffType.OFF;
-                logger.info("Updating power state to " + state);
-                updateState(CHANNEL_POWER, state);
+            try {
+                Boolean powerStatus = getPowerStatus();
+                if (powerStatus != previousPowerState) {
+                    previousPowerState = powerStatus;
+                    OnOffType state = powerStatus ? OnOffType.ON : OnOffType.OFF;
+                    logger.info("Updating power state to " + state);
+                    updateState(CHANNEL_POWER, state);
+                }
+            } catch (ConnectException e) {
+                logger.error("Unable to connect to TV");
+                updateStatus(ThingStatus.OFFLINE);
+            } catch (Exception e) {
+                logger.error("Uncaught exception in status loop", e);
+                updateStatus(ThingStatus.OFFLINE);
             }
         };
         executor = Executors.newSingleThreadScheduledExecutor();
@@ -129,14 +136,16 @@ public class SonyBraviaHandler extends BaseThingHandler {
     }
 
 
-    private boolean getPowerStatus() {
+    private boolean getPowerStatus() throws Exception {
         StringContentProvider contentProvider = new StringContentProvider("{\"method\":\"getPowerStatus\",\"params\":[],\"id\":1,\"version\":\"1.0\"}");
-        ContentResponse response = null;
+        ContentResponse response;
         try {
             response = httpClient.POST("http://" + config.ipAddress + "/sony/system").content(contentProvider).send();
-        } catch (InterruptedException | TimeoutException | ExecutionException e) {
-            logger.error("Exception while getting power status", e);
-            return false;
+        } catch (ExecutionException e) {
+            if (e.getCause() != null && Exception.class.isAssignableFrom(e.getCause().getClass())) { //hack to expose the ConnectException
+                throw (Exception)e.getCause();
+            }
+            throw e;
         }
         Map map = gson.fromJson(response.getContentAsString(), Map.class);
         String status = (String)((Map)((List)map.get("result")).get(0)).get("status");
