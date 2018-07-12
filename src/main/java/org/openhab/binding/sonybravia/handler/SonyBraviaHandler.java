@@ -103,6 +103,10 @@ public class SonyBraviaHandler extends BaseThingHandler {
         Runnable runnable = () -> {
             try {
                 Boolean powerStatus = getPowerStatus();
+                if (getThing().getStatus() != ThingStatus.ONLINE) {
+                    logger.error("TV connection is restored");
+                    updateStatus(ThingStatus.ONLINE);
+                }
                 if (powerStatus != previousPowerState) {
                     previousPowerState = powerStatus;
                     OnOffType state = powerStatus ? OnOffType.ON : OnOffType.OFF;
