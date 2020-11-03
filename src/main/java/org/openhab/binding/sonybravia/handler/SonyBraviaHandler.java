@@ -13,7 +13,6 @@
 package org.openhab.binding.sonybravia.handler;
 
 import com.google.gson.Gson;
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -45,7 +44,7 @@ import static org.openhab.binding.sonybravia.SonyBraviaBindingConstants.CHANNEL_
  *
  * @author Haavar Valeur - Initial contribution
  */
- @NonNullByDefault
+ //@NonNullByDefault
 public class SonyBraviaHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(SonyBraviaHandler.class);
