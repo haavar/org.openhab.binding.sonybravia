@@ -21,7 +21,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  *
  * @author Haavar Valeur - Initial contribution
  */
- @NonNullByDefault
+@NonNullByDefault
 public class SonyBraviaBindingConstants {
 
     private static final String BINDING_ID = "sonybravia";
@@ -31,5 +31,4 @@ public class SonyBraviaBindingConstants {
 
     // List of all Channel ids
     public static final String CHANNEL_POWER = "power";
-
 }
