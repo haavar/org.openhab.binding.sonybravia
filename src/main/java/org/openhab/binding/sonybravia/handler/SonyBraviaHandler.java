@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2018,2018 by the respective copyright holders.
+ * Copyright (c) 2010-2022 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -27,13 +27,13 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.StringContentProvider;
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.types.Command;
 import org.openhab.binding.sonybravia.internal.SonyBraviaConfiguration;
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,8 +81,7 @@ public class SonyBraviaHandler extends BaseThingHandler {
     public void initialize() {
         config = getConfigAs(SonyBraviaConfiguration.class);
 
-        logger.info("config ip=" + config.ipAddress + " PSK=" + config.preSharedKey + " pullInterval="
-                + config.pullInterval);
+        logger.info("config ip={} PSK={} pullInterval={}", config.ipAddress, config.preSharedKey, config.pullInterval);
         // TODO: Initialize the thing. If done set status to ONLINE to indicate proper working.
         // Long running initialization should be done asynchronously in background.
         updateStatus(ThingStatus.ONLINE);
@@ -103,15 +102,15 @@ public class SonyBraviaHandler extends BaseThingHandler {
 
         Runnable runnable = () -> {
             try {
-                Boolean powerStatus = getPowerStatus();
+                boolean powerStatus = getPowerStatus();
                 if (getThing().getStatus() != ThingStatus.ONLINE) {
                     logger.error("TV connection is restored");
                     updateStatus(ThingStatus.ONLINE);
                 }
-                if (powerStatus != previousPowerState) {
+                if (previousPowerState == null || powerStatus != previousPowerState) {
                     previousPowerState = powerStatus;
                     OnOffType state = powerStatus ? OnOffType.ON : OnOffType.OFF;
-                    logger.info("Updating power state to " + state);
+                    logger.info("Updating power state to {} ", state);
                     updateState(CHANNEL_POWER, state);
                 }
             } catch (ConnectException e) {
@@ -158,7 +157,7 @@ public class SonyBraviaHandler extends BaseThingHandler {
     }
 
     private void setPowerStatus(boolean status) {
-        logger.info("set power status=" + status);
+        logger.info("set power status={}", status);
 
         StringContentProvider contentProvider = new StringContentProvider(
                 "{\"id\": 2, \"method\": \"setPowerStatus\", \"version\": \"1.0\", \"params\": [{ \"status\": " + status

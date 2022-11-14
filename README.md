@@ -33,6 +33,7 @@ Currently this binding on supports a single channel: **power**, and it's a switc
 ## Example
 
 *Example item for the power channel:*
+
 ```
 Switch FR_TV "Family room TV" { channel = "sonybravia:tv:d5ed6ce2:power" }
 ```
